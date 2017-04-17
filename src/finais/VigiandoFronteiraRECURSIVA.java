@@ -1,10 +1,12 @@
+//a minha solucao inicial para este problema
+// /stack overflow error (apenas no mooshak), que nao devia ter dado. mas algoritmo teoricamente e para 100 - O(5000*t)
 package finais;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class VigiandoFronteira {
+public class VigiandoFronteiraRECURSIVA {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static StringTokenizer st;
     static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
@@ -21,15 +23,14 @@ public class VigiandoFronteira {
             s[i] = (pp[i] ? 1 : 0) + (i != 0 ? s[i - 1] : 0);
             Arrays.fill(dp[i], -1);
         }
-        for (int x = 0; x <= 5000; x++)
-            for (int n = 0; n <= t; n++)
-                dp[x][n] = Math.max(dp(x - 1, n), r(x) + dp(x - 2 * a - 1, n - 1));
         out.println(dp(5000, t));
         out.flush();
     }
 
     static int dp(int x, int n) {
         if (n < 1 || x < 0) return 0;
+        if (dp[x][n] == -1)
+            dp[x][n] = Math.max(dp(x - 1, n), r(x) + dp(x - 2 * a - 1, n - 1));
         return dp[x][n];
     }
 
