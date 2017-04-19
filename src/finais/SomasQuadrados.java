@@ -1,80 +1,56 @@
-//So da 76 pontos ;(
-
+//Solucao do @gangsterveggies para 100
 package finais;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.StringTokenizer;
 
 public class SomasQuadrados {
+    static final int MAX = 2000000;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static StringTokenizer st;
     static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
-    static HashMap<Triple, Integer> dp = new HashMap<Triple, Integer>();
-
-    static class Triple {
-        int i, j, k;
-
-        public Triple(int i, int j, int k) {
-            this.i = i;
-            this.j = j;
-            this.k = k;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Triple triple = (Triple) o;
-
-            return i == triple.i && j == triple.j && k == triple.k;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = i;
-            result = 31 * result + j;
-            result = 31 * result + k;
-            return result;
-        }
-    }
+    static int sq[] = new int[MAX + 5], sq2[] = new int[MAX + 5], m[];
 
     public static void main(String[] args) throws IOException {
 //        long now = System.currentTimeMillis();
+        for (int i = 1; i * i <= MAX; i++) {
+            for (int j = i; i * i + j * j <= MAX; j++)
+                sq2[i * i + j * j]++;
+            sq[i * i] = i;
+        }
         int c = in();
-        for (int i = 0; i < c; i++) {
-            int n = in(), k = (int) Math.sqrt(n);
-            for (int j = 1; j <= 4; j++) {
-                int r = dp(n, k, j);
-                if (r != 0) {
-                    out.println(n + ": " + j + " " + r);
-                    break;
+        for (int w = 0; w < c; w++) {
+            int n = in(), k = 0, d = 0;
+            if (sq[n] > 0) {
+                k = 1;
+                d = 1;
+            } else if (sq2[n] > 0) {
+                k = 2;
+                d += sq2[n];
+            } else {
+                //3
+                for (int i = 1; i * i <= n; i++)
+                    for (int j = i; j * j + i * i <= n; j++)
+                        if (sq[n - i * i - j * j] >= j) {
+                            k = 3;
+                            d++;
+                        }
+                //4
+                if (k == 0) {
+                    k = 4;
+                    m = new int[MAX + 5];
+                    for (int i = 1; i * i <= n; i++) {
+                        for (int j = 1; j <= i && i * i + j * j <= n; j++)
+                            m[i * i + j * j]++;
+                        for (int j = i; i * i + j * j <= n; j++)
+                            d += m[n - i * i - j * j];
+                    }
                 }
             }
+            out.println(n + ": " + k + " " + d);
         }
 //        out.println("time: " + (System.currentTimeMillis() - now));
         out.flush();
-    }
-
-    static int dp(int v, int k, int c) {
-//        System.out.println("dp: " + v + " " + k + " " + c);
-        k = Math.min(k, (int) Math.sqrt(v-c+1));
-        if (v == 0 && c == 0)
-            return 1;
-        if (v <= 0 || k <= 0 || c == 0 || k * k * c < v)
-            return 0;
-        Triple t = new Triple(v, k, c);
-        if (c == 1)
-            return Math.pow(Math.sqrt(v), 2) == v ? 1 : 0;
-        if (!dp.containsKey(t)) {
-            int r = 0;
-            for (int i = 0; i <= c; i++)
-                r += dp(v - k * k * i, k - 1, c - i);
-            dp.put(t, r);
-        }
-        return dp.get(t);
     }
 
     static int in() throws IOException {
