@@ -1,7 +1,7 @@
 package finais;//solucao para 90 pontos (WA)
+
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Escolas {
@@ -9,7 +9,8 @@ public class Escolas {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static StringTokenizer st;
     static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
-    static int l, c, ii[][], dpx[][][][] = new int[550][550][5][2], dpy[][][][] = new int[550][550][5][2], dir[][], w[][] = new int[2][2], lx = 0, ly = 0;
+    static int l, c, ii[][], dir[][];
+    static Point q = new Point(0, 0), w[] = new Point[2], dp[][][][] = new Point[550][550][5][2];
     static char[][] m;
 
     public static void main(String[] args) throws IOException {
@@ -33,11 +34,9 @@ public class Escolas {
         }
         for (int y = 0; y <= 530; y++)
             for (int x = 0; x <= 530; x++)
-                for (int i = 0; i < 4; i++) {
-                    dpx[y][x][i][0] = INF;
-                    dpy[y][x][i][0] = INF;
-                    dpx[y][x][i][1] = INF;
-                    dpy[y][x][i][1] = INF;
+                for (int i = 0; i < 5; i++) {
+                    dp[y][x][i][0] = new Point(INF, INF);
+                    dp[y][x][i][1] = new Point(INF, INF);
                 }
         int b = Integer.MAX_VALUE;
         fillDp();
@@ -49,16 +48,15 @@ public class Escolas {
                     Point p = new Point(0, 0);
                     rr(y, x);
                     for (int i = 0; i < 4; i++) {
-                        r(dpy[y][x][i][0], dpx[y][x][i][0]);
-                        r(dpy[y][x][i][1], dpx[y][x][i][1]);
-                        if (dpy[y][x][i][0] != INF && d(dpy[y][x][i][0], dpx[y][x][i][0]) < r) {
-                            r = d(dpy[y][x][i][0], dpx[y][x][i][0]);
-                            dpy[y][x][4][0] = dpy[y][x][i][0];
-                            dpx[y][x][4][0] = dpx[y][x][i][0];
-                            p = new Point(dpx[y][x][i][0], dpy[y][x][i][0]);
+                        r(dp[y][x][i][0]);
+                        r(dp[y][x][i][1]);
+                        if (dp[y][x][i][0].y != INF && d(dp[y][x][i][0]) < r) {
+                            r = d(dp[y][x][i][0]);
+                            dp[y][x][4][0] = dp[y][x][i][0].copy();
+                            p = dp[y][x][4][0].copy();
                         }
                     }
-                    ll[ii[p.y][p.x]] = Math.max(ll[ii[p.y][p.x]], d(w[1][0], w[1][1]));
+                    ll[ii[p.y][p.x]] = Math.max(ll[ii[p.y][p.x]], d(w[1]));
                 }
         }
         Point bp = new Point(0, 0);
@@ -70,8 +68,8 @@ public class Escolas {
         }
         for (int y = 1; y <= l; y++)
             for (int x = 1; x <= c; x++)
-                if ((dpx[y][x][4][0] != bp.x || dpy[y][x][4][0] != bp.y) && m[y][x] == 'R')
-                    b = Math.max(b, Math.abs(y - dpy[y][x][4][0]) + Math.abs(x - dpx[y][x][4][0]));
+                if ((dp[y][x][4][0].x != bp.x || dp[y][x][4][0].y != bp.y) && m[y][x] == 'R')
+                    b = Math.max(b, Math.abs(y - dp[y][x][4][0].y) + Math.abs(x - dp[y][x][4][0].x));
 //        for (int i = 0; i < 5; i++) {
 //            System.out.println("best " + i);
 //            for (int y = 1; y <= l; y++) {
@@ -87,29 +85,31 @@ public class Escolas {
 //        System.out.println("time: " + (System.currentTimeMillis() - now));
     }
 
+    static void r(Point p) {
+        r(p.y, p.x);
+    }
+
     static void r(int y, int x) {
         int d = d(y, x);
-//        System.out.println("adding distance to ("+y+","+x+")=" + d);
-        if (d < d(w[0][0], w[0][1])) {
-            w[1][0] = w[0][0];
-            w[1][1] = w[0][1];
-            w[0][0] = y;
-            w[0][1] = x;
-        } else if (d < d(w[1][0], w[1][1]) && (y != w[0][0] || x != w[0][1])) {
-            w[1][0] = y;
-            w[1][1] = x;
-        }
+        if (d < d(w[0])) {
+            w[1] = w[0];
+            w[0] = new Point(x, y);
+        } else if (d < d(w[1]) && (y != w[0].y || x != w[0].x))
+            w[1] = new Point(x, y);
+    }
+
+    static int d(Point p) {
+        return d(p.y, p.x);
     }
 
     static int d(int y, int x) {
-        return Math.abs(y - ly) + Math.abs(x - lx);
+        return Math.abs(y - q.y) + Math.abs(x - q.x);
     }
 
     static void rr(int y, int x) {
-        Arrays.fill(w[0], INF);
-        Arrays.fill(w[1], INF);
-        ly = y;
-        lx = x;
+        w[0] = new Point(INF, INF);
+        w[1] = new Point(INF, INF);
+        q = new Point(x, y);
     }
 
     static void fillDp() {
@@ -120,14 +120,12 @@ public class Escolas {
                     rr(y, x);
                     if (m[y][x] == 'E')
                         r(y, x);
-                    r(dpy[y + k[4]][x][i][0], dpx[y + k[4]][x][i][0]);
-                    r(dpy[y][x + k[5]][i][0], dpx[y][x + k[5]][i][0]);
-                    r(dpy[y + k[4]][x][i][1], dpx[y + k[4]][x][i][1]);
-                    r(dpy[y][x + k[5]][i][1], dpx[y][x + k[5]][i][1]);
-                    dpy[y][x][i][0] = w[0][0];
-                    dpx[y][x][i][0] = w[0][1];
-                    dpy[y][x][i][1] = w[1][0];
-                    dpx[y][x][i][1] = w[1][1];
+                    r(dp[y + k[4]][x][i][0]);
+                    r(dp[y + k[4]][x][i][1]);
+                    r(dp[y][x + k[5]][i][0]);
+                    r(dp[y][x + k[5]][i][1]);
+                    dp[y][x][i][0] = w[0].copy();
+                    dp[y][x][i][1] = w[1].copy();
                 }
         }
     }
@@ -148,6 +146,10 @@ public class Escolas {
         public Point(int x, int y) {
             this.x = x;
             this.y = y;
+        }
+
+        public Point copy() {
+            return new Point(x, y);
         }
     }
 }
