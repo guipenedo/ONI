@@ -1,5 +1,3 @@
-package finais;//solucao para 90 pontos (WA)
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
@@ -9,12 +7,11 @@ public class Escolas {
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
     static StringTokenizer st;
     static PrintWriter out = new PrintWriter(new OutputStreamWriter(System.out));
-    static int l, c, ii[][], dir[][];
-    static Point q = new Point(0, 0), w[] = new Point[2], dp[][][][] = new Point[550][550][5][2];
+    static int l, c, ii[][], dir[][], ee[] = new int[]{-1, -1};
+    static Point q = new Point(0, 0), w[] = new Point[2], e = new Point(0, 0), dp[][][][] = new Point[550][550][5][2];
     static char[][] m;
 
     public static void main(String[] args) throws IOException {
-//        long now = System.currentTimeMillis();
         l = in();
         c = in();
         ArrayList<Point> es = new ArrayList<Point>();
@@ -56,33 +53,25 @@ public class Escolas {
                             p = dp[y][x][4][0].copy();
                         }
                     }
+                    e(w[0].y, w[0].x);
                     ll[ii[p.y][p.x]] = Math.max(ll[ii[p.y][p.x]], d(w[1]));
                 }
         }
         Point bp = new Point(0, 0);
         for (Point p : es) {
-            if (ll[ii[p.y][p.x]] != 0 && ll[ii[p.y][p.x]] < b) {
+            int zz = Math.max(ll[ii[p.y][p.x]], e.equals(p) ? ee[1] : ee[0]);
+            if (zz < b) {
                 bp = p;
-                b = ll[ii[p.y][p.x]];
+                b = zz;
             }
         }
         for (int y = 1; y <= l; y++)
             for (int x = 1; x <= c; x++)
                 if ((dp[y][x][4][0].x != bp.x || dp[y][x][4][0].y != bp.y) && m[y][x] == 'R')
                     b = Math.max(b, Math.abs(y - dp[y][x][4][0].y) + Math.abs(x - dp[y][x][4][0].x));
-//        for (int i = 0; i < 5; i++) {
-//            System.out.println("best " + i);
-//            for (int y = 1; y <= l; y++) {
-//                for (int x = 1; x <= c; x++)
-//                    System.out.print("(" + dpx[y][x][i][0] + "," + dpy[y][x][i][0] + ") ");
-//                System.out.println();
-//            }
-//            System.out.println();
-//        }
         out.println(bp.y + " " + bp.x);
         out.println(b);
         out.flush();
-//        System.out.println("time: " + (System.currentTimeMillis() - now));
     }
 
     static void r(Point p) {
@@ -96,6 +85,17 @@ public class Escolas {
             w[0] = new Point(x, y);
         } else if (d < d(w[1]) && (y != w[0].y || x != w[0].x))
             w[1] = new Point(x, y);
+    }
+
+    static void e(int y, int x) {
+        int d = d(y, x);
+        if (d > ee[0]) {
+            ee[1] = ee[1];
+            ee[0] = d;
+            e = new Point(x, y);
+        } else if (d > ee[1] && (y != e.y || x != e.x)) {
+            ee[1] = d;
+        }
     }
 
     static int d(Point p) {
@@ -146,6 +146,10 @@ public class Escolas {
         public Point(int x, int y) {
             this.x = x;
             this.y = y;
+        }
+
+        public boolean equals(Point p) {
+            return x == p.x && y == p.y;
         }
 
         public Point copy() {
