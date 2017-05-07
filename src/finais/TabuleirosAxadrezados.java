@@ -1,3 +1,5 @@
+package finais;//agradecimento: @gangsterveggies - ajudou-me a descobrir o meu erro
+
 import java.io.*;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -16,12 +18,19 @@ public class TabuleirosAxadrezados {
         char[][] m = new char[l][c];
         for (int y = 0; y < l; y++) {
             m[y] = next().toCharArray();
+            for (int x = 0; x < c; x++)
+                dp[y][x] = (y == 0 || m[y][x] == m[y - 1][x]) ? 1 : dp[y - 1][x] + 1;
+        }
+        for (int y = 0; y < l; y++) {
             Stack<Integer> s = new Stack<Integer>();
             for (int x = 0; x < c; x++) {
-                dp[y][x] = (y == 0 || m[y][x] == m[y - 1][x]) ? 1 : dp[y - 1][x] + 1;
-                while (!s.isEmpty() && (m[y][x] == m[y][x - 1] || dp[y][s.peek()] > dp[y][x]))
+                int f = x;
+                while (!s.isEmpty() && (m[y][x] == m[y][x - 1] || dp[y][s.peek()] > dp[y][x])) {
+                    f = m[y][x] == m[y][x - 1] ? f : Math.min(f, s.peek());
                     w(y, s.pop(), x);
-                s.push(x);
+                    dp[y][f] = dp[y][x];
+                }
+                s.push(f);
             }
             while (!s.isEmpty())
                 w(y, s.pop(), c);
