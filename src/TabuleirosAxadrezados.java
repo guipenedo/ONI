@@ -16,12 +16,9 @@ public class TabuleirosAxadrezados {
         char[][] m = new char[l][c];
         for (int y = 0; y < l; y++) {
             m[y] = next().toCharArray();
-            for (int x = 0; x < c; x++)
-                dp[y][x] = (y == 0 || m[y][x] == m[y - 1][x]) ? 1 : dp[y - 1][x] + 1;
-        }
-        for (int y = l - 1; y >= 0; y--) {
             Stack<Integer> s = new Stack<Integer>();
             for (int x = 0; x < c; x++) {
+                dp[y][x] = (y == 0 || m[y][x] == m[y - 1][x]) ? 1 : dp[y - 1][x] + 1;
                 while (!s.isEmpty() && (m[y][x] == m[y][x - 1] || dp[y][s.peek()] > dp[y][x]))
                     w(y, s.pop(), x);
                 s.push(x);
