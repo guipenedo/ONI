@@ -1,5 +1,3 @@
-package oldaf;
-
 import java.util.ArrayList;
 import java.util.Scanner;
 
